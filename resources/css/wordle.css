@@ -1,0 +1,91 @@
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    background: #121213;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+header {
+    text-align: center;
+    padding: 20px;
+    border-bottom: 1px solid #3a3a3c;
+}
+header h1 {
+    margin: 0;
+    font-size: 32px;
+}
+.game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 40px;
+}
+.board {
+    display: grid;
+    grid-template-columns: repeat(5, 60px);
+    gap: 5px;
+}
+.tile {
+    width: 60px;
+    height: 60px;
+    border: 2px solid #3a3a3c;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.keyboard {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+.key {
+    width: 43px;
+    height: 58px;
+    border: none;
+    border-radius: 4px;
+    background: #818384;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.key:hover {
+    background: #6b6c6d;
+}
+.key:active {
+    transform: scale(0.95);
+}
+.key.wide {
+    width: 65px;
+}
+
+.tile {
+    transition: transform 0.2s;
+}
+
+.tile.flip {
+    animation: flip 0.5s ease forwards;
+}
+
+@keyframes flip {
+    0% {
+        transform: rotateX(0);
+    }
+    50% {
+        transform: rotateX(90deg);
+    }
+    100% {
+        transform: rotateX(0);
+    }
+}

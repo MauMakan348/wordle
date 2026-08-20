@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\WordleController;
 
-Route::get('/', function () {
-    return view('wordle');
-});
+Route::get('/', [WordleController::class, 'index']);
