@@ -7,10 +7,20 @@ body {
     color: white;
     font-family: Arial, sans-serif;
 }
+#message {
+    height: 30px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    font-weight: bold;
+}
 header {
     text-align: center;
     padding: 20px;
     border-bottom: 1px solid #3a3a3c;
+    position: relative;
 }
 header h1 {
     margin: 0;
@@ -69,15 +79,53 @@ header h1 {
 .key.wide {
     width: 65px;
 }
-
 .tile {
     transition: transform 0.2s;
 }
-
 .tile.flip {
     animation: flip 0.5s ease forwards;
 }
 
+/* help Button */
+#helpButton {
+    position: absolute;
+    right: 20px;
+    width: 35px;
+    height: 35px;
+    border: 2px solid #818384;
+    border-radius: 50%;
+    background: transparent;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+#helpButton:hover {
+    background: #3a3a3c;
+}
+
+/* stats nya */
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 20px;
+}
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.stat strong {
+    font-size: 24px;
+}
+.stat span {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #818384;
+}
+
+/* animation */
 @keyframes flip {
     0% {
         transform: rotateX(0);
@@ -88,4 +136,203 @@ header h1 {
     100% {
         transform: rotateX(0);
     }
+}
+.tile.pop {
+    animation: pop 0.1s ease-in-out;
+}
+@keyframes pop {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+.shake {
+    animation: shake 0.4s ease-in-out;
+}
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    20% {
+        transform: translateX(-8px);
+    }
+    40% {
+        transform: translateX(8px);
+    }
+    60% {
+        transform: translateX(-8px);
+    }
+    80% {
+        transform: translateX(8px);
+    }
+}
+
+#restartButton {
+    display: none;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background: #538d4e;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+#restartButton:hover {
+    opacity: 0.8;
+}
+
+/* modal cara main */
+.modal {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0);
+    opacity: 0;
+    visibility: hidden;
+    transition: 
+        opacity 0.25s ease,
+        background 0.25s ease;
+    z-index: 100;
+}
+.modal.show {
+    opacity: 1;
+    visibility: visible;
+    background: rgba(0, 0, 0, 0.6);
+}
+.modal-content {
+    width: 90%;
+    max-width: 450px;
+    padding: 30px;
+    background: #121213;
+    border: 1px solid #3a3a3c;
+    border-radius: 10px;
+    text-align: center;
+    transform: scale(0.8) translateY(20px);
+    opacity: 0;
+    transition:
+        transform 0.25s ease,
+        opacity 0.25s ease;
+}
+.modal.show .modal-content {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+}
+#closeHelp {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    border: none;
+    background: transparent;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+}
+.example {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+.example-tile {
+    width: 45px;
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    border: 2px solid #3a3a3c;
+}
+.example-tile.correct {
+    background: #538d4e;
+}
+.example-tile.present {
+    background: #b59f3b;
+}
+.example-tile.absent {
+    background: #3a3a3c;
+}
+
+/* tombol main lagi */
+#playAgainButton {
+    width: 100%;
+    margin-top: 30px;
+    padding: 14px;
+    border: none;
+    border-radius: 5px;
+    background: #538d4e;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+#playAgainButton:hover {
+    opacity: 0.9;
+}
+
+/* distribusi */
+.distribution {
+    width: 100%;
+    max-width: 400px;
+    margin: 30px auto 0;
+    text-align: left;
+}
+.distribution h3 {
+    text-align: center;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+.distribution-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+.distribution-row > span {
+    width: 20px;
+    font-weight: bold;
+}
+.bar {
+    flex: 1;
+    height: 32px;
+}
+.bar-fill {
+    min-width: 30px;
+    width: 0%;
+    min-height: 32px;
+    padding: 5px 8px;
+    background: #538d4e;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    font-weight: bold;
+    transition: width 0.4s ease;
+}
+
+/* reset button */
+.reset-button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: transparent;
+    color: #d9534f;
+    border: 1px solid #d9534f;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.reset-button:hover {
+    background: #d9534f;
+    color: white;
 }

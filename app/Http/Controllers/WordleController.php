@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\View\View;
+use App\Models\GameStat;
 
 class WordleController extends Controller
 {
     public function index(): View{
         $words = [
             'KOKOP',
-            'RUMAH',
+            'KURSI',
             'PUTRA',
             'PUTRI',
             'RUMAH',
@@ -18,13 +19,53 @@ class WordleController extends Controller
             'LOLOK',
             'GELAS',
             'ANIES',
+            'RUKUN',
+            'RUSAK',
+            'BETIS',
+            'KIPAS',
+            'MERAH',
+            'BALON',
+            'PANAS',
+            'WAJAN',
+            'SIKAT',
+            'PENIS',
+            'ISTRI',
+            'SUAMI',
+            'BOKEP',
+            'JARAH',
+            'IKLAS',
+            'RINDU',
+            'MASIH',
+            'LEBAR',
+            'SEREM',
+            'MASUK',
+            'NGANU',
+            'ORANG',
+            'ADMIN',
+            'BAGUS',
+            'SIANG',
+            'MALAM',
+            'LAMAR',
+            'PUNYA',
+            'BENAR',
+            'BEJAR',
+            'MAKAN',
         ];
 
-        $secretWord = $words[array_rand($words)];
-        
+        $stats = GameStat::first();
+        if (!$stats) {
+            $stats = GameStat::create([
+                'games_played' => 0,
+                'games_won' => 0,
+                'current_streak' => 0,
+                'best_streak' => 0,
+            ]);
+        }
+
         return view('wordle', [
-            'secretWord' => $secretWord,
-            'words' => $words,
+            'secretWord' => $words[array_rand($words)],
+            'validWords' => $words,
+            'stats' => $stats,
         ]);
     }
 }

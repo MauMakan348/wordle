@@ -9,6 +9,35 @@ const keyStatus = {};
 
 const tiles = document.querySelectorAll('.tile');
 
+const message = document.querySelector('#message');
+
+const restartButton = document.querySelector('#restartButton');
+const resetStatsButton = document.querySelector('#resetStatsButton');
+
+const gamesPlayed = document.querySelector('#gamesPlayed');
+const gamesWon = document.querySelector('#gamesWon');
+const currentStreak = document.querySelector('#currentStreak');
+const bestStreak = document.querySelector('#bestStreak');
+const winRate = document.querySelector('#winRate');
+
+const statsModal = document.querySelector('#statsModal');
+const gameResult = document.querySelector('#gameResult');
+const modalGamesPlayed = document.querySelector('#modalGamesPlayed');
+const modalGamesWon = document.querySelector('#modalGamesWon');
+const modalWinRate = document.querySelector('#modalWinRate');
+const modalCurrentStreak = document.querySelector('#modalCurrentStreak');
+const modalBestStreak = document.querySelector('#modalBestStreak');
+const playAgainButton = document.querySelector('#playAgainButton');
+
+const guessBars = [
+    document.querySelector('#guess1Bar'),
+    document.querySelector('#guess2Bar'),
+    document.querySelector('#guess3Bar'),
+    document.querySelector('#guess4Bar'),
+    document.querySelector('#guess5Bar'),
+    document.querySelector('#guess6Bar')
+];
+
 
 // ==========================
 // KEYBOARD FISIK
@@ -28,6 +57,10 @@ document.addEventListener('keydown', function(event) {
             const tile = tiles[currentRow * 5 + currentCol];
 
             tile.textContent = event.key.toUpperCase();
+            tile.classList.add('pop');
+            setTimeout(function(){
+                tile.classList.remove('pop');
+            }, 100);
 
             currentCol++;
         }
@@ -42,11 +75,8 @@ document.addEventListener('keydown', function(event) {
         }
 
         if (currentCol > 0) {
-
             currentCol--;
-
             const tile = tiles[currentRow * 5 + currentCol];
-
             tile.textContent = '';
         }
     }
@@ -127,9 +157,96 @@ function updateKeyboard(letter, status) {
     }
 }
 
+function showMessage(text, permanent = false){
+    message.textContent = text;
+    if (permanent){
+        restartButton.style.display = 'block';
+    } else {
+        setTimeout(function(){
+            message.textContent = '';
+        }, 1500);
+    }
+    
+}
+
+function saveGameResult(won, resultText, guessNumber = null) {
+
+    const token = document
+        .querySelector('meta[name="csrf-token"]')
+        .getAttribute('content');
+
+    fetch('/wordle/result', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': token,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            won: won,
+            guessNumber: guessNumber
+        })
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        console.log('Statistik berhasil disimpan:', data);
+        gamesPlayed.textContent = data.stats.games_played;
+        gamesWon.textContent = data.stats.games_won;
+                const rate = Math.round(
+            (data.stats.games_won / data.stats.games_played) * 100
+        );
+        winRate.textContent = rate + '%';
+        currentStreak.textContent = data.stats.current_streak;
+        bestStreak.textContent = data.stats.best_streak;
+
+        showStatsModal(resultText, data.stats);
+    })
+    .catch(function(error) {
+        console.error('Gagal menyimpan statistik:', error);
+    });
+}
+
+function showStatsModal(result, stats) {
+    gameResult.textContent = result;
+    modalGamesPlayed.textContent = stats.games_played;
+    modalGamesWon.textContent = stats.games_won;
+    const rate = Math.round(
+        (stats.games_won / stats.games_played) * 100
+    );
+    modalWinRate.textContent = rate + '%';
+    modalCurrentStreak.textContent = stats.current_streak;
+    modalBestStreak.textContent = stats.best_streak;
+    statsModal.classList.add('show');
+
+    const guesses = [
+        stats.guess_1,
+        stats.guess_2,
+        stats.guess_3,
+        stats.guess_4,
+        stats.guess_5,
+        stats.guess_6
+    ];
+    const maxGuess = Math.max(...guesses, 1);
+    guesses.forEach(function(count, index) {
+        const bar = guessBars[index];
+        const width = (count / maxGuess) * 100;
+        bar.style.width = width + '%';
+        bar.textContent = count;
+    });
+}
+
 function checkGuess() {
 
     const guess = getCurrentGuess();
+
+    if (!validWords.includes(guess)){
+        shakeRow();
+        showMessage('Kata tidak di temukan!');
+        return 'invalid';
+    }
+
     console.log('Jawaban pemain:', guess);
 
     // Status setiap huruf
@@ -203,18 +320,30 @@ function checkGuess() {
     // MENANG
     if (guess === secretWord) {
         gameOver = true;
-        setTimeout(function() {
-            alert('Kamu menang!');
-        }, 100);
+        saveGameResult(true, 'KAMU MENANG!', currentRow + 1);
         return 'won';
     }
     return 'continue';
 }
 
-// ==========================
-// FUNGSI ENTER
-// ==========================
+function shakeRow(){
+    
+    const currentTiles = [];
+    
+    for (let i = 0; i < 5; i++){
+        const tile = tiles[currentRow * 5 + i];
+        currentTiles.push(tile);
+    }
 
+    currentTiles.forEach(function(tile){
+        tile.classList.add('shake');
+        setTimeout(function(){
+            tile.classList.remove('shake');
+        }, 400);
+    });
+}
+
+// FUNGSI ENTER
 function handleEnter() {
 
     if (gameOver) {
@@ -222,7 +351,8 @@ function handleEnter() {
     }
 
     if (currentCol !== 5) {
-        alert('Masukkan 5 huruf terlebih dahulu!');
+        shakeRow();
+        showMessage('Masukkan 5 huruf terlebih dahulu!');
         return;
     }
 
@@ -240,12 +370,11 @@ function handleEnter() {
     currentCol = 0;
 
     if (currentRow >= 6) {
-
         gameOver = true;
-
-        setTimeout(function() {
-            alert('Game Over! Jawabannya adalah ' + secretWord);
-        }, 100);
+        saveGameResult(
+            false,
+            'Game Over! Jawabannya: ' + secretWord
+        );
     }
 }
 
@@ -306,10 +435,85 @@ keys.forEach(function(key) {
                 tiles[currentRow * 5 + currentCol];
 
             tile.textContent = letter;
+            tile.classList.add('pop');
+            setTimeout(function(){
+                tile.classList.remove('pop');
+            }, 100);
 
             currentCol++;
         }
 
+    });
+
+});
+
+//restart button
+restartButton.addEventListener('click', function() {
+    window.location.reload();
+});
+
+//MODAL
+const helpButton = document.querySelector('#helpButton');
+const helpModal = document.querySelector('#helpModal');
+const closeHelp = document.querySelector('#closeHelp');
+
+helpButton.addEventListener('click', function(){
+    helpModal.classList.add('show');
+});
+
+closeHelp.addEventListener('click', function(){
+    helpModal.classList.remove('show');
+});
+
+// tombol main lagi
+playAgainButton.addEventListener('click', function() {
+    window.location.reload();
+});
+
+// reset button
+resetStatsButton.addEventListener('click', function() {
+    const confirmReset = confirm(
+        'Yakin ingin menghapus semua statistik?'
+    );
+
+    if (!confirmReset) {
+        return;
+    }
+
+    const token = document
+        .querySelector('meta[name="csrf-token"]')
+        .getAttribute('content');
+
+    fetch('/wordle/reset-stats', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': token,
+            'Accept': 'application/json'
+        }
+    })
+    
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        const stats = data.stats;
+        gamesPlayed.textContent =
+            stats.games_played;
+        gamesWon.textContent =
+            stats.games_won;
+        winRate.textContent = '0%';
+        currentStreak.textContent =
+            stats.current_streak;
+        bestStreak.textContent =
+            stats.best_streak;
+        showStatsModal('STATISTIK DIRESET', stats);
+    })
+    .catch(function(error) {
+        console.error(
+            'Gagal mereset statistik:',
+            error
+        );
     });
 
 });
