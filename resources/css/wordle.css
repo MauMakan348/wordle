@@ -69,6 +69,10 @@ header h1 {
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
+    transition: transform 0.1s ease;
+}
+.key.key-press {
+    transform: scale(0.92);
 }
 .key:hover {
     background: #6b6c6d;
@@ -137,6 +141,9 @@ header h1 {
         transform: rotateX(0);
     }
 }
+.tile.flip {
+    animation: flip 0.6s ease forwards;
+}
 .tile.pop {
     animation: pop 0.1s ease-in-out;
 }
@@ -170,6 +177,26 @@ header h1 {
     80% {
         transform: translateX(8px);
     }
+}
+@keyframes bounce {
+    0%, 20% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-20px);
+    }
+    50% {
+        transform: translateY(0);
+    }
+    60% {
+        transform: translateY(-10px);
+    }
+    80%, 100% {
+        transform: translateY(0);
+    }
+}
+.tile.bounce {
+    animation: bounce 0.6s ease;
 }
 
 #restartButton {
@@ -335,4 +362,61 @@ header h1 {
 .reset-button:hover {
     background: #d9534f;
     color: white;
+}
+
+
+/* Responsive */
+
+@media (max-width: 600px){
+    /* halaman */
+    body{
+        margin: 0;
+        padding: 10px;
+    }
+    /* judul */
+    h1{
+        font-size: 28px;
+    }
+    /* boardWordle */
+    .board{
+        width: 100%;
+        max-width: 350px;
+        margin: 20px auto;
+    }
+    /* kotakHuruf */
+    .tile{
+        width: 52px;
+        height: 52px;
+        font-size: 24px;
+    }
+    /* keyboard */
+    .keyboard{
+        width: 100%;
+        max-width: 500px;
+        margin: 0px auto;
+    }
+    .keyboard-row{
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+        margin-bottom: 5px;
+    }
+    /* tombolKeyboard */
+    .key{
+        min-width: 28px;
+        height: 50px;
+        font-size: 13px;
+        padding: 0 5px;
+    }
+    /* tombolEnter */
+    .key.wide{
+        min-width: 50px;
+        font-size: 11px;
+    }
+    /* modalStatistik */
+    .stats-modal-content{
+        width: 90%;
+        max-width: 400px;
+        padding: 20px;
+    }
 }

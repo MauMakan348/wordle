@@ -50,6 +50,24 @@ class WordleController extends Controller
             'BENAR',
             'BEJAR',
             'MAKAN',
+            'KEJAM',
+            'KANAN',
+            'NASIB',
+            'MASAK',
+            'PAKAR',
+            'KERAM',
+            'TIDUR',
+            'KAMAR',
+            'RAMAH',
+            'MARAH',
+            'SAKIT',
+            'TASIK',
+            'AKBAR',
+            'KABAR',
+            'KAFIR',
+            'KASUR',
+            'KELAS',
+            'KELAM'
         ];
 
         $stats = GameStat::first();

@@ -8,38 +8,72 @@ use Illuminate\Http\Request;
 Route::get('/', [WordleController::class, 'index']);
 
 Route::post('/wordle/result', function (Request $request) {
-    $request->validate([
+
+    $data = $request->validate([
         'won' => ['required', 'boolean'],
         'guessNumber' => ['nullable', 'integer', 'between:1,6'],
     ]);
 
-    $stats = GameStat::first();
-
-    if (!$stats) {
-        $stats = GameStat::create([
+    $stats = GameStat::firstOrCreate(
+        ['id' => 1],
+        [
             'games_played' => 0,
             'games_won' => 0,
             'current_streak' => 0,
             'best_streak' => 0,
-        ]);
-    }
+            'guess_1' => 0,
+            'guess_2' => 0,
+            'guess_3' => 0,
+            'guess_4' => 0,
+            'guess_5' => 0,
+            'guess_6' => 0,
+        ]
+    );
 
-    $stats->games_played++;
+    // Tambah jumlah permainan
+    $stats->increment('games_played');
 
-    if ($request->won) {
-        $stats->games_won++;
-        $stats->current_streak++;
+    if ($data['won']) {
+
+        // Tambah jumlah kemenangan
+        $stats->increment('games_won');
+
+        // Ambil ulang data terbaru
+        $stats->refresh();
+
+        // Tambah streak
+        $stats->increment('current_streak');
+
+        // Ambil ulang setelah increment
+        $stats->refresh();
+
+        // Update best streak
         if ($stats->current_streak > $stats->best_streak) {
             $stats->best_streak = $stats->current_streak;
+            $stats->save();
         }
-        $guessColumn = 'guess_' . $request->guessNumber;
-        $stats->$guessColumn++;
+
+        // Tambah Guess Distribution
+        if ($data['guessNumber']) {
+
+            $guessColumn = 'guess_' . $data['guessNumber'];
+
+            $stats->increment($guessColumn);
+        }
+
+    } else {
+
+        // Jika kalah, streak kembali 0
+        $stats->current_streak = 0;
+        $stats->save();
     }
 
-    $stats->save();
+    // Ambil data PALING BARU dari database
+    $stats->refresh();
 
     return response()->json([
         'success' => true,
+        'received' => $data,
         'stats' => $stats,
     ]);
 });

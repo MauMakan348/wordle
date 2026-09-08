@@ -51,37 +51,37 @@
 <div class="distribution">
     <h3>GUESS DISTRIBUTION</h3>
     <div class="distribution-row">
-        <span>1</span>
+        <span id="guess1">1</span>
         <div class="bar">
             <div id="guess1Bar" class="bar-fill">0</div>
         </div>
     </div>
     <div class="distribution-row">
-        <span>2</span>
+        <span id="guess2">2</span>
         <div class="bar">
             <div id="guess2Bar" class="bar-fill">0</div>
         </div>
     </div>
     <div class="distribution-row">
-        <span>3</span>
+        <span id="guess3">3</span>
         <div class="bar">
             <div id="guess3Bar" class="bar-fill">0</div>
         </div>
     </div>
     <div class="distribution-row">
-        <span>4</span>
+        <span id="guess4">4</span>
         <div class="bar">
             <div id="guess4Bar" class="bar-fill">0</div>
         </div>
     </div>
     <div class="distribution-row">
-        <span>5</span>
+        <span id="guess5">5</span>
         <div class="bar">
             <div id="guess5Bar" class="bar-fill">0</div>
         </div>
     </div>
     <div class="distribution-row">
-        <span>6</span>
+        <span id="guess6">6</span>
         <div class="bar">
             <div id="guess6Bar" class="bar-fill">0</div>
         </div>

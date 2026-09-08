@@ -4,6 +4,7 @@ const validWords = window.validWords;
 let currentRow = 0;
 let currentCol = 0;
 let gameOver = false;
+let isAnimating = false;
 
 const keyStatus = {};
 
@@ -44,6 +45,10 @@ const guessBars = [
 // ==========================
 
 document.addEventListener('keydown', function(event) {
+
+    if (isAnimating) {
+        return;
+    }
 
     // Huruf A-Z
     if (/^[a-zA-Z]$/.test(event.key)) {
@@ -171,6 +176,13 @@ function showMessage(text, permanent = false){
 
 function saveGameResult(won, resultText, guessNumber = null) {
 
+    console.log('SAVE GAME DIPANGGIL!', won, resultText, guessNumber);
+
+    console.log('MENGIRIM HASIL GAME: ',{
+        won : won,
+        guessNumber : guessNumber
+    });
+
     const token = document
         .querySelector('meta[name="csrf-token"]')
         .getAttribute('content');
@@ -188,19 +200,32 @@ function saveGameResult(won, resultText, guessNumber = null) {
         })
     })
     .then(function(response) {
+        console.log('STATUS RESPONSE:', response.status);
         return response.json();
     })
     .then(function(data) {
-        console.log('Statistik berhasil disimpan:', data);
+        console.log('DATA DARI LARAVEL:', data);
+
         gamesPlayed.textContent = data.stats.games_played;
         gamesWon.textContent = data.stats.games_won;
-                const rate = Math.round(
+
+        const rate = Math.round(
             (data.stats.games_won / data.stats.games_played) * 100
         );
+
         winRate.textContent = rate + '%';
+
         currentStreak.textContent = data.stats.current_streak;
         bestStreak.textContent = data.stats.best_streak;
 
+        //update distribution 
+        document.querySelector('#guess1').textContent = data.stats.guess_1;
+        document.querySelector('#guess2').textContent = data.stats.guess_2;
+        document.querySelector('#guess3').textContent = data.stats.guess_3;
+        document.querySelector('#guess4').textContent = data.stats.guess_4;
+        document.querySelector('#guess5').textContent = data.stats.guess_5;
+        document.querySelector('#guess6').textContent = data.stats.guess_6;
+            
         showStatsModal(resultText, data.stats);
     })
     .catch(function(error) {
@@ -246,6 +271,8 @@ function checkGuess() {
         showMessage('Kata tidak di temukan!');
         return 'invalid';
     }
+
+    isAnimating = true;
 
     console.log('Jawaban pemain:', guess);
 
@@ -320,9 +347,22 @@ function checkGuess() {
     // MENANG
     if (guess === secretWord) {
         gameOver = true;
-        saveGameResult(true, 'KAMU MENANG!', currentRow + 1);
+        const guessNumber = currentRow + 1;
+        setTimeout(function() {
+            bounceRow();
+            saveGameResult(
+                true,
+                'KAMU MENANG!',
+                guessNumber
+            );
+        }, 1800);
         return 'won';
     }
+
+    setTimeout(function() {
+        isAnimating = false;
+    }, 1800);
+
     return 'continue';
 }
 
@@ -341,6 +381,19 @@ function shakeRow(){
             tile.classList.remove('shake');
         }, 400);
     });
+}
+
+function bounceRow() {
+
+    for (let i = 0; i < 5; i++) {
+        const tile = tiles[currentRow * 5 + i];
+        setTimeout(function() {
+            tile.classList.add('bounce');
+            setTimeout(function() {
+                tile.classList.remove('bounce');
+            }, 600);
+        }, i * 100);
+    }
 }
 
 // FUNGSI ENTER
@@ -366,16 +419,19 @@ function handleEnter() {
         return;
     }
 
-    currentRow++;
-    currentCol = 0;
+    setTimeout(function() {
 
-    if (currentRow >= 6) {
-        gameOver = true;
-        saveGameResult(
-            false,
-            'Game Over! Jawabannya: ' + secretWord
-        );
-    }
+        currentRow++;
+        currentCol = 0;
+
+        if (currentRow >= 6) {
+            gameOver = true;
+            showMessage(
+                'Game Over! Jawabannya adalah ' + secretWord,
+                true
+            );
+        }
+    }, 1800);
 }
 
 
@@ -390,14 +446,21 @@ keys.forEach(function(key) {
 
     key.addEventListener('click', function() {
 
+        if (isAnimating) {
+            return;
+        }
+
+        key.classList.add('key-press');
+        setTimeout(function() {
+            key.classList.remove('key-press');
+        }, 100);
+
         const letter = key.textContent;
 
 
         // ENTER
         if (letter === 'ENTER') {
-
             handleEnter();
-
             return;
         }
 
@@ -410,15 +473,11 @@ keys.forEach(function(key) {
             }
 
             if (currentCol > 0) {
-
                 currentCol--;
-
                 const tile =
                     tiles[currentRow * 5 + currentCol];
-
                 tile.textContent = '';
             }
-
             return;
         }
 
@@ -430,16 +489,12 @@ keys.forEach(function(key) {
 
 
         if (currentCol < 5) {
-
-            const tile =
-                tiles[currentRow * 5 + currentCol];
-
+            const tile = tiles[currentRow * 5 + currentCol];
             tile.textContent = letter;
             tile.classList.add('pop');
             setTimeout(function(){
                 tile.classList.remove('pop');
             }, 100);
-
             currentCol++;
         }
 
@@ -492,7 +547,7 @@ resetStatsButton.addEventListener('click', function() {
             'Accept': 'application/json'
         }
     })
-    
+
     .then(function(response) {
         return response.json();
     })
